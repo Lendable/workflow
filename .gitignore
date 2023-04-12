@@ -7,3 +7,4 @@
 /infection-summary.log
 /infection-per-mutator.md
 /.env
+/coverage.php

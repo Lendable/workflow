@@ -5,6 +5,7 @@
             "."
         ],
         "excludes": [
+            "hackathon",
             "vendor",
             "Tests"
         ]
