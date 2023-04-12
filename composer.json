@@ -24,6 +24,7 @@
     },
     "require-dev": {
         "psr/log": "^1|^2|^3",
+        "infection/infection": "^0.26",
         "phpunit/phpunit": "^10",
         "symfony/dependency-injection": "^5.4|^6.0",
         "symfony/event-dispatcher": "^5.4|^6.0",
@@ -39,5 +40,10 @@
         "exclude-from-classmap": [
             "/Tests/"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true
+        }
     }
 }
