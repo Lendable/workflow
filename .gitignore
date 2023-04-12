@@ -1,3 +1,8 @@
 /vendor/
 /phpunit.xml
 /.phpunit.result.cache
+/infection.html
+/infection.log
+/infection-log.json
+/infection-summary.log
+/infection-per-mutator.md
