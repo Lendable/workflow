@@ -24,6 +24,7 @@
     },
     "require-dev": {
         "psr/log": "^1|^2|^3",
+        "phpunit/phpunit": "^10",
         "symfony/dependency-injection": "^5.4|^6.0",
         "symfony/event-dispatcher": "^5.4|^6.0",
         "symfony/expression-language": "^5.4|^6.0",
@@ -38,6 +39,5 @@
         "exclude-from-classmap": [
             "/Tests/"
         ]
-    },
-    "minimum-stability": "dev"
+    }
 }
