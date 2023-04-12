@@ -39,7 +39,7 @@ composer:
 .PHONY: phpunit
 phpunit: ## Run tests
 phpunit:
-	@ docker run -it --rm --user ${UID}:${GID} -v "${ROOT_DIR}:/app/" -w=/app --name lendable-hackathon --entrypoint=phpunit lendable/hackathon
+	@ docker run -it --rm --user ${UID}:${GID} -v "${ROOT_DIR}:/app/" -w=/app --name lendable-hackathon --entrypoint=phpunit lendable/hackathon --coverage-php coverage.php
 
 .PHONY: infection
 infection: ## Run tests
