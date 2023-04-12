@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Workflow\Event\GuardEvent;
 use Symfony\Component\Workflow\Exception\NotEnabledTransitionException;
+use Symfony\Component\Workflow\MarkingStore\MarkingStoreInterface;
 use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\TransitionBlocker;
 

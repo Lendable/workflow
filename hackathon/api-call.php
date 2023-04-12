@@ -12,16 +12,40 @@ $api = new OpenAiApi(HttpClient::create());
 
 $promptGenerator = new PromptGenerator();
 
-$fileData = $promptGenerator->generate('Transition');
+$fileData = $promptGenerator->generate('DefinitionBuilder');
 
 if ($fileData === null) {
     die("No data found");
 }
 
-$request = '# Source code: ' . PHP_EOL . $fileData->getMutatedFilePath() . PHP_EOL . $fileData->getOriginalSourceCode() . PHP_EOL;
-$request .= '# Diff of mutant changes:' . PHP_EOL . $fileData->getDiff() . PHP_EOL;
-$request .= '# Test covering the class:' . PHP_EOL . $fileData->getTestFilePath() . PHP_EOL . $fileData->getTestFileSourceCode() . PHP_EOL;
+$request = <<<EOF
+# Source code of mutated `{$fileData->getMutatedFilePath()}` file
 
-echo "Request: " . PHP_EOL . $request . PHP_EOL;
+```php
+{$fileData->getOriginalSourceCode()}
+```
+
+# Diff of mutant changes is
+
+```php
+{$fileData->getDiff()}
+```
+
+# Current unit tests for this class
+EOF;
+
+foreach ($fileData->getTestsSourceCode() as $filename => $sourceCode) {
+    $request .= <<<EOF
+
+Filename {$filename} 
+
+```php
+{$sourceCode}
+```
+
+EOF;
+}
+
+file_put_contents('request.md', $request);
 
 echo $api->getResponse($request) . PHP_EOL;

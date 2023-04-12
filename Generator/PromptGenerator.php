@@ -9,11 +9,7 @@ use Symfony\Component\Workflow\Mutator\MutatorData;
 
 class PromptGenerator
 {
-    public function __construct()
-    {
-    }
-
-    public function generate(string $testName): ?MutatorData
+    public function generate(string $className): ?MutatorData
     {
         /** @var array{
          *   escaped: non-empty-list<
@@ -36,9 +32,12 @@ class PromptGenerator
 
         $coverageData = include __DIR__ . '/../coverage.php';
 
-        foreach ($mutationData['escaped'] as $mutant) {
+        foreach ($mutationData['escaped'] as $index => $mutant) {
+            if ($index <= 0) {
+                continue;
+            }
 
-            if (\str_contains($mutant['mutator']['originalFilePath'], $testName)) {
+            if (\str_ends_with($mutant['mutator']['originalFilePath'], $className . '.php')) {
                 $lineCoverage = $coverageData->getData()->lineCoverage();
                 $data = [];
 
@@ -56,14 +55,19 @@ class PromptGenerator
 
                 $testClass = new \ReflectionClass(\explode('::', $data[0])[0]);
 
+                $testsSourceCode[$testClass->getFileName()] = file_get_contents($testClass->getFileName());
+
+                foreach ($testClass->getTraits() as $trait) {
+                    $testsSourceCode[$trait->getFileName()] = file_get_contents($trait->getFileName());
+                }
+
                 return new MutatorData(
                     $mutant['mutator']['originalSourceCode'],
                     $mutant['mutator']['mutatedSourceCode'],
                     $mutant['mutator']['originalFilePath'],
                     $mutant['diff'],
                     $mutant['processOutput'],
-                    $testClass->getFileName(),
-                    file_get_contents($testClass->getFileName()),
+                    $testsSourceCode,
                 );
             }
         }

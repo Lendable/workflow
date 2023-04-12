@@ -12,10 +12,8 @@ class MutatorData
         private readonly string $mutatedFilePath,
         private readonly string $diff,
         private readonly string $processOutput,
-        private readonly string $testFilePath,
-        private readonly string $testFileSourceCode,
-    )
-    {
+        private readonly array $testsSourceCode,
+    ) {
     }
 
     public function getMutatedSourceCode(): string
@@ -43,13 +41,11 @@ class MutatorData
         return $this->processOutput;
     }
 
-    public function getTestFilePath(): string
+    /**
+     * @return array<string, string>
+     */
+    public function getTestsSourceCode(): array
     {
-        return $this->testFilePath;
-    }
-
-    public function getTestFileSourceCode(): string
-    {
-        return $this->testFileSourceCode;
+        return $this->testsSourceCode;
     }
 }

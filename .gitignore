@@ -6,6 +6,7 @@
 /infection-log.json
 /infection-summary.log
 /infection-per-mutator.md
+/request.md
 /.env
 /coverage.php
 .idea/
