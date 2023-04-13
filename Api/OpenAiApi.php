@@ -36,7 +36,7 @@ class OpenAiApi
                                 The user will supply you with the source code, the diff of the changed code, and the tests covering the changed code.
                                 Do not use Reflection, only test the observable behaviour by calling and accessing public methods and properties. Private methods and properties are internal and we should not base our assertions on those.
                                 If the mutant is considered equivalent or does not make sense to fix it, reply with \"EQUIVALENT\" and do not include any other sentences. If not, generate the test case method that kills the mutant. 
-                                Use FQCN (fully qualified names) class names for all classes in that new test function.
+                                Use FQCN (fully qualified names) class names for all classes in that new test function and add '\' at the beginning of FQCN. 
                                 Return the test file name that needs to be modified (with a Filename: prefix) and plain php source code with no other information.
                             "
                         ],
