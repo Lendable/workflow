@@ -2,9 +2,6 @@
 
 namespace Symfony\Component\Workflow\Generator;
 
-use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\Selector;
-use SebastianBergmann\CodeCoverage\Filter;
 use Symfony\Component\Workflow\Mutator\MutatorData;
 
 class PromptGenerator

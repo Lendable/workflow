@@ -1,0 +1,16 @@
+Filename: /app/Tests/DefinitionBuilderTest.php
+
+```php
+public function testAddPlaceWithNonEmptyPlaces()
+{
+    $builder = new DefinitionBuilder(['a'], []);
+    $builder->addPlace('b');
+
+    $definition = $builder->build();
+
+    $this->assertCount(2, $definition->getPlaces());
+    $this->assertEquals('a', $definition->getPlaces()['a']);
+    $this->assertEquals('b', $definition->getPlaces()['b']);
+    $this->assertEquals(['a'], $definition->getInitialPlaces());
+}
+```

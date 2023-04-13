@@ -7,10 +7,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Workflow\Api\OpenAiApi;
 use Symfony\Component\Workflow\Generator\PromptGenerator;
+use Symfony\Component\Workflow\Manager\FileManager;
 
 $api = new OpenAiApi(HttpClient::create());
 
 $promptGenerator = new PromptGenerator();
+$fileManager = new FileManager();
 
 $fileData = $promptGenerator->generate('DefinitionBuilder');
 
@@ -48,4 +50,16 @@ EOF;
 
 file_put_contents('request.md', $request);
 
-echo $api->getResponse($request) . PHP_EOL;
+//$content = file_get_contents('response.txt');
+$content = $api->getResponse($request) . PHP_EOL;
+
+if (str_contains($content, 'EQUIVALENT')) {
+    die('EQUIVALENT');
+}
+
+$fileName = $fileManager->writeFunction($content);
+
+die('Added test to ' . $fileName);
+// run tests
+//if test failed restore file $fileManager->restoreFile($fileName);
+//if test passed accept file $fileManager->acceptFile($fileName);
