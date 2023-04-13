@@ -16,12 +16,10 @@ $fileManager = new FileManager();
 
 $currentFile = 'StateMachine';
 
-$fileData = $promptGenerator->generate($currentFile);
+//$fileData = $promptGenerator->generate($currentFile);
 
-if ($fileData === null) {
-    shell_exec("vendor/bin/infection --filter=".$currentFile);
-    $fileData = $promptGenerator->generate($currentFile);
-}
+shell_exec("vendor/bin/infection --filter=".$currentFile);
+$fileData = $promptGenerator->generate($currentFile);
 
 $request = <<<EOF
 # Source code of mutated `{$fileData->getMutatedFilePath()}` file
@@ -90,15 +88,15 @@ $infectionResult = shell_exec("vendor/bin/infection --filter=".$currentFile);
 preg_match($infectionPattern, $infectionResult, $infectionMatches);
 preg_match($phpunitPattern, $unitResult, $unitMatches);
 
-try {
-    $tests = $unitMatches[1];
-    $assertions = $unitMatches[2];
-    $mutations = $infectionMatches[1];
-} catch (Exception $exception) {
+if (!array_key_exists(1, $unitMatches)) {
     echo "Something went wrong, reverting changes";
     $fileManager->restoreFile($fileName);
     die();
 }
+
+$tests = $unitMatches[1];
+$assertions = $unitMatches[2];
+$mutations = $infectionMatches[1];
 
 echo "Tests after running AI:" . PHP_EOL;
 echo \sprintf('PHPUNIT tests: %d, Assertions: %d', $tests, $assertions) . PHP_EOL;
