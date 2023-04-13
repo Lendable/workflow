@@ -14,10 +14,13 @@ $api = new OpenAiApi(HttpClient::create());
 $promptGenerator = new PromptGenerator();
 $fileManager = new FileManager();
 
-$fileData = $promptGenerator->generate('DefinitionBuilder');
+$currentFile = 'StateMachine';
+
+$fileData = $promptGenerator->generate($currentFile);
 
 if ($fileData === null) {
-    die("No data found");
+    shell_exec("vendor/bin/infection --filter=".$currentFile);
+    $fileData = $promptGenerator->generate($currentFile);
 }
 
 $request = <<<EOF
@@ -51,15 +54,66 @@ EOF;
 file_put_contents('request.md', $request);
 
 //$content = file_get_contents('response.txt');
+
+$unitResult = shell_exec("vendor/bin/phpunit --filter=".$currentFile);
+$infectionResult = shell_exec("vendor/bin/infection --filter=".$currentFile);
+
+$phpunitPattern = '/OK\s+\((\d+)\s+tests,\s+(\d+)\s+assertions\)/';
+$infectionPattern = '/(\d+)\s+mutants\s+were\s+killed/';
+
+preg_match($infectionPattern, $infectionResult, $infectionMatches);
+preg_match($phpunitPattern, $unitResult, $unitMatches);
+
+$testsBefore = $unitMatches[1];
+$assertionsBefore = $unitMatches[2];
+$mutationsBefore = $infectionMatches[1];
+
+echo PHP_EOL;
+echo "Tests before running AI:" . PHP_EOL;
+echo \sprintf('PHPUNIT tests: %d, Assertions: %d', $testsBefore, $assertionsBefore) . PHP_EOL;
+echo \sprintf('INFECTION mutators killed: %d', $mutationsBefore) . PHP_EOL;
+echo PHP_EOL;
+
+echo "Running AI..." . PHP_EOL;
 $content = $api->getResponse($request) . PHP_EOL;
 
 if (str_contains($content, 'EQUIVALENT')) {
-    die('EQUIVALENT');
+    die('AI Could not make it any better, we are safe!');
 }
 
 $fileName = $fileManager->writeFunction($content);
+echo "Added test to " . $fileName . "Running tests" . PHP_EOL;
 
-die('Added test to ' . $fileName);
-// run tests
-//if test failed restore file $fileManager->restoreFile($fileName);
-//if test passed accept file $fileManager->acceptFile($fileName);
+$unitResult = shell_exec("vendor/bin/phpunit --filter=".$currentFile);
+$infectionResult = shell_exec("vendor/bin/infection --filter=".$currentFile);
+
+preg_match($infectionPattern, $infectionResult, $infectionMatches);
+preg_match($phpunitPattern, $unitResult, $unitMatches);
+
+try {
+    $tests = $unitMatches[1];
+    $assertions = $unitMatches[2];
+    $mutations = $infectionMatches[1];
+} catch (Exception $exception) {
+    echo "Something went wrong, reverting changes";
+    $fileManager->restoreFile($fileName);
+    die();
+}
+
+echo "Tests after running AI:" . PHP_EOL;
+echo \sprintf('PHPUNIT tests: %d, Assertions: %d', $tests, $assertions) . PHP_EOL;
+echo \sprintf('INFECTION mutators killed: %d', $mutations) . PHP_EOL;
+
+if ($assertionsBefore < $assertions) {
+    echo sprintf('assertions increased from %d to %d', $assertionsBefore, $assertions) . PHP_EOL;
+}
+
+if ($mutations > $mutationsBefore) {
+    echo sprintf('Mutators amount increased from %d to %d, accepting changes', $mutationsBefore, $mutations) . PHP_EOL;
+    // TODO commit changes XD
+
+    $fileManager->acceptFile($fileName);
+} else {
+    echo "Mutators amount didnt change, reverting changes";
+    $fileManager->restoreFile($fileName);
+}
